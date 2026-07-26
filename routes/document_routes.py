@@ -8,6 +8,8 @@ from config.settings import settings
 from src.database.base import get_db
 from src.database.models import DocumentMetadata
 from src.services import get_predictor, get_vector_store
+from src.document_processing.pdf_parser import PDFParser
+from src.document_processing.chunker import DocumentChunker
 
 # Lightweight helpers
 parser = PDFParser()

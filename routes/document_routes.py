@@ -11,6 +11,8 @@ from src.services import get_predictor, get_vector_store
 from src.document_processing.pdf_parser import PDFParser
 from src.document_processing.chunker import DocumentChunker
 
+router = APIRouter(prefix="/documents", tags=["Document Management"])
+
 # Lightweight helpers
 parser = PDFParser()
 chunker = DocumentChunker(chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)

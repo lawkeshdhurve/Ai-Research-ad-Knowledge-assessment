@@ -5,17 +5,9 @@ from sqlalchemy.orm import Session
 
 from src.database.base import get_db
 from src.database.models import DocumentMetadata
-from src.vector_store.manager import VectorStoreManager
-from src.rag.summarizer import DocumentSummarizer
-from src.rag.comparator import DocumentComparator
-from src.ml.predictor import DomainClassifierPredictor
+from src.services import get_summarizer, get_comparator, get_predictor
 
 router = APIRouter(prefix="/analysis", tags=["Document Analysis & ML Classification"])
-
-vector_store = VectorStoreManager()
-summarizer = DocumentSummarizer(vector_store=vector_store)
-comparator = DocumentComparator(vector_store=vector_store)
-predictor = DomainClassifierPredictor()
 
 class SummarizeRequest(BaseModel):
     doc_id: str
@@ -35,7 +27,7 @@ def summarize_document(req: SummarizeRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Document not found.")
 
     file_name = doc.file_name if doc else "Document"
-    result = summarizer.summarize_document(req.doc_id, file_name=file_name)
+    result = get_summarizer().summarize_document(req.doc_id, file_name=file_name)
     return result
 
 
@@ -49,7 +41,7 @@ def compare_documents(req: CompareRequest, db: Session = Depends(get_db)):
     doc_map = {d.doc_id: d.file_name for d in docs}
     names = [doc_map.get(d_id, f"Doc_{d_id[:6]}") for d_id in req.doc_ids]
 
-    result = comparator.compare_documents(doc_ids=req.doc_ids, doc_names=names)
+    result = get_comparator().compare_documents(doc_ids=req.doc_ids, doc_names=names)
     return result
 
 
@@ -59,5 +51,5 @@ def classify_text(req: ClassifyRequest):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Text payload cannot be empty.")
 
-    prediction = predictor.predict_category(req.text)
+    prediction = get_predictor().predict_category(req.text)
     return prediction

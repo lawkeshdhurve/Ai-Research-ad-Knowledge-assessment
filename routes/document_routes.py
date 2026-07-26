@@ -7,18 +7,11 @@ from sqlalchemy.orm import Session
 from config.settings import settings
 from src.database.base import get_db
 from src.database.models import DocumentMetadata
-from src.document_processing.pdf_parser import PDFParser
-from src.document_processing.chunker import DocumentChunker
-from src.ml.predictor import DomainClassifierPredictor
-from src.vector_store.manager import VectorStoreManager
+from src.services import get_predictor, get_vector_store
 
-router = APIRouter(prefix="/documents", tags=["Document Management"])
-
-# Singletons for services
+# Lightweight helpers
 parser = PDFParser()
 chunker = DocumentChunker(chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)
-predictor = DomainClassifierPredictor()
-vector_store = VectorStoreManager()
 
 def process_pdf_pipeline(doc_id: str, file_path: str, db_session_factory):
     """
@@ -47,7 +40,7 @@ def process_pdf_pipeline(doc_id: str, file_path: str, db_session_factory):
         
         # Step 2: TF Domain Classification on sample text
         sample_text = " ".join([p["text"] for p in pages_data[:3]])[:2000]
-        prediction_result = predictor.predict_category(sample_text)
+        prediction_result = get_predictor().predict_category(sample_text)
         predicted_category = prediction_result.get("category", "General Tech")
 
         # Step 3: Text Chunking
@@ -55,7 +48,7 @@ def process_pdf_pipeline(doc_id: str, file_path: str, db_session_factory):
         total_chunks = len(chunks)
 
         # Step 4: Vector Store Indexing
-        vector_store.add_chunks(chunks)
+        get_vector_store().add_chunks(chunks)
 
         # Step 5: Update DB metadata record
         doc_record.total_pages = total_pages
@@ -143,7 +136,7 @@ def delete_document(doc_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Document not found.")
 
     # Remove vector DB chunks
-    vector_store.delete_document_chunks(doc_id)
+    get_vector_store().delete_document_chunks(doc_id)
 
     # Delete raw file if exists
     if os.path.exists(doc.file_path):
@@ -178,7 +171,7 @@ def reprocess_document(
     db.commit()
 
     # Clear old vectors
-    vector_store.delete_document_chunks(doc_id)
+    get_vector_store().delete_document_chunks(doc_id)
 
     from src.database.base import SessionLocal
     background_tasks.add_task(process_pdf_pipeline, doc_id, doc.file_path, SessionLocal)

@@ -17,7 +17,6 @@ class DomainClassifierPredictor:
         self.tokenizer_path = str(settings.TOKENIZER_PATH)
         self.model = None
         self.categories = CATEGORIES
-        self._ensure_model_loaded()
 
     def _ensure_model_loaded(self):
         """Loads model or auto-trains if not present."""

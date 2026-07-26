@@ -15,9 +15,7 @@ class VectorStoreManager:
     def __init__(self):
         self.persist_directory = str(settings.VECTOR_DB_DIR)
         os.makedirs(self.persist_directory, exist_ok=True)
-        
-        # Initialize SentenceTransformer embedding model
-        self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL_NAME)
+        self._embedding_model = None
         
         # Initialize Persistent ChromaDB Client
         self.chroma_client = chromadb.PersistentClient(path=self.persist_directory)
@@ -25,6 +23,13 @@ class VectorStoreManager:
             name="research_documents",
             metadata={"hnsw:space": "cosine"}
         )
+
+    @property
+    def embedding_model(self):
+        """Lazily loads embedding model on first vector encode request."""
+        if self._embedding_model is None:
+            self._embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL_NAME)
+        return self._embedding_model
 
     def add_chunks(self, chunks: List[Dict[str, Any]]) -> int:
         """

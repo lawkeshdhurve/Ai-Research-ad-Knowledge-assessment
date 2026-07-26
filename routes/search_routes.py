@@ -8,13 +8,7 @@ from sqlalchemy.orm import Session
 
 from src.database.base import get_db
 from src.database.models import ChatSession, ChatMessage, QueryMetric
-from src.vector_store.manager import VectorStoreManager
-from src.rag.qa_chain import RAGQuestionAnswering
-
-router = APIRouter(prefix="/search", tags=["Search & RAG QA"])
-
-vector_store = VectorStoreManager()
-rag_chain = RAGQuestionAnswering(vector_store=vector_store)
+from src.services import get_vector_store, get_qa_chain
 
 # Pydantic Request Models
 class SearchRequest(BaseModel):
@@ -38,6 +32,7 @@ def search_documents(req: SearchRequest):
     if not req.query.strip():
         raise HTTPException(status_code=400, detail="Query string cannot be empty.")
 
+    vector_store = get_vector_store()
     if req.search_type == "semantic":
         results = vector_store.semantic_search(req.query, top_k=req.top_k, doc_ids=req.doc_ids)
     elif req.search_type == "keyword":
@@ -89,7 +84,7 @@ def answer_question(req: QARequest, db: Session = Depends(get_db)):
     db.commit()
 
     # Run RAG QA chain
-    qa_result = rag_chain.answer_question(
+    qa_result = get_qa_chain().answer_question(
         query=req.query,
         session_history=history_payload,
         selected_doc_ids=req.doc_ids

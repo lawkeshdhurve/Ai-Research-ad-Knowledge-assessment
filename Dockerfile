@@ -28,5 +28,5 @@ RUN python -c "from config.settings import settings; settings.ensure_directories
 # Expose port
 EXPOSE 8000
 
-# Run single worker Uvicorn server for 512MB RAM compliance
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Run single worker Uvicorn server bound to $PORT (or 8000)
+CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1

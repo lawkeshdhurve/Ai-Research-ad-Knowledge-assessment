@@ -10,6 +10,8 @@ from src.database.base import get_db
 from src.database.models import ChatSession, ChatMessage, QueryMetric
 from src.services import get_vector_store, get_qa_chain
 
+router = APIRouter(prefix="/search", tags=["Search & RAG QA"])
+
 # Pydantic Request Models
 class SearchRequest(BaseModel):
     query: str

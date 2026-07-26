@@ -1,0 +1,14 @@
+services:
+  ai-assistant:
+    build: .
+    container_name: ai_research_assistant
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - VECTOR_DB_DIR=./data/vector_db
+      - DATABASE_URL=sqlite:///./data/assistant.db
+    restart: always

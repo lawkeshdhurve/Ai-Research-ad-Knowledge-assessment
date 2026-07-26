@@ -1,0 +1,28 @@
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+
+# Byte-compiled / Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment variables & local secrets
+.env
+.env.local
+
+# Data storage & local database
+data/raw_documents/*
+!data/raw_documents/.gitkeep
+data/vector_db/*
+!data/vector_db/.gitkeep
+data/assistant.db
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Research & Knowledge Assistant | Enterprise RAG & ML Platform</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-brain-circuit"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>NexusAI</h2>
+                    <span>Research Assistant</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-tab="documents-tab">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Documents</span>
+                </button>
+                <button class="nav-btn" data-tab="chat-tab">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>RAG Chat</span>
+                </button>
+                <button class="nav-btn" data-tab="analysis-tab">
+                    <i class="fa-solid fa-flask-vial"></i>
+                    <span>Multi-Doc Analysis</span>
+                </button>
+                <button class="nav-btn" data-tab="analytics-tab">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Analytics</span>
+                </button>
+                <button class="nav-btn" data-tab="ml-tab">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>ML Classifier</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="tf-badge">
+                    <i class="fa-custom-tf fa-solid fa-microchip"></i>
+                    <span>TensorFlow 2.x Active</span>
+                </div>
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span> System Ready
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Viewport -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="header-title">Document Workspace</h1>
+                    <p id="header-subtitle">Upload, process, and auto-classify technical research papers</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="refresh-btn">
+                        <i class="fa-solid fa-rotate"></i> Refresh
+                    </button>
+                    <a href="/docs" target="_blank" class="btn btn-outline">
+                        <i class="fa-solid fa-code"></i> API Docs
+                    </a>
+                </div>
+            </header>
+
+            <!-- TAB 1: DOCUMENTS MANAGEMENT -->
+            <section id="documents-tab" class="tab-content active">
+                <div class="dropzone-card" id="dropzone">
+                    <div class="dropzone-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <h3>Drag & Drop PDF Documents</h3>
+                    <p>Or click to browse technical specifications, papers, and whitepapers</p>
+                    <input type="file" id="file-input" accept=".pdf" hidden>
+                    <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                        <i class="fa-solid fa-folder-open"></i> Select PDF File
+                    </button>
+                    <div id="upload-spinner" class="spinner-container hidden">
+                        <div class="spinner"></div>
+                        <span id="upload-status-text">Uploading and launching background processing pipeline...</span>
+                    </div>
+                </div>
+
+                <div class="card table-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-layer-group"></i> Ingested Knowledge Repository</h3>
+                        <span class="badge badge-info" id="doc-count-badge">0 Documents</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Document File</th>
+                                    <th>Status</th>
+                                    <th>TF Classified Domain</th>
+                                    <th>Pages</th>
+                                    <th>Indexed Chunks</th>
+                                    <th>Upload Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="documents-table-body">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">No documents uploaded yet. Upload a PDF to begin.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: RAG CHAT -->
+            <section id="chat-tab" class="tab-content">
+                <div class="chat-layout">
+                    <div class="chat-sidebar">
+                        <div class="session-header">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> Research Sessions</h3>
+                            <button class="btn btn-icon" id="new-session-btn" title="New Session">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="session-list" id="session-list">
+                            <!-- Sessions injected via JS -->
+                        </div>
+                        <div class="doc-filter-box">
+                            <label><i class="fa-solid fa-filter"></i> Target Documents:</label>
+                            <select id="chat-doc-filter" multiple class="form-select">
+                                <!-- Options injected via JS -->
+                            </select>
+                            <small>Hold Ctrl/Cmd to select multiple</small>
+                        </div>
+                    </div>
+
+                    <div class="chat-main">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message assistant-msg">
+                                <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+                                <div class="msg-body">
+                                    <p>Hello! I am your AI Research Assistant. Ask me domain questions grounded strictly in your uploaded PDF repository.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-container">
+                            <form id="chat-form">
+                                <textarea id="chat-input" placeholder="Ask a technical research question (e.g. 'What methodology is used for bipedal locomotion?')..." rows="2"></textarea>
+                                <button type="submit" class="btn btn-primary btn-send" id="send-chat-btn">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: MULTI-DOC ANALYSIS -->
+            <section id="analysis-tab" class="tab-content">
+                <div class="analysis-controls card">
+                    <h3><i class="fa-solid fa-sliders"></i> Select Documents for Multi-Doc Analysis</h3>
+                    <div class="document-picker-grid" id="analysis-doc-picker">
+                        <!-- Checkboxes injected via JS -->
+                    </div>
+                    <div class="analysis-actions">
+                        <button class="btn btn-primary" id="btn-run-summary">
+                            <i class="fa-solid fa-list-check"></i> Generate Multi-Tier Summary
+                        </button>
+                        <button class="btn btn-accent" id="btn-run-comparison">
+                            <i class="fa-solid fa-code-compare"></i> Run Comparative Matrix
+                        </button>
+                    </div>
+                </div>
+
+                <div id="analysis-results" class="analysis-results-container">
+                    <div class="placeholder-state">
+                        <i class="fa-solid fa-diagram-project"></i>
+                        <p>Select documents above and click Summary or Comparison to analyze methodologies, pros/cons, and takeaways.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: ANALYTICS -->
+            <section id="analytics-tab" class="tab-content">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-indigo"><i class="fa-solid fa-file-lines"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-label">Total Documents</span>
+                            <h3 id="stat-total-docs">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon bg-purple"><i class="fa-solid fa-cubes"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-label">Indexed Vector Chunks</span>
+                            <h3 id="stat-total-chunks">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon bg-pink"><i class="fa-solid fa-circle-question"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-label">Total Queries Executed</span>
+                            <h3 id="stat-total-queries">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon bg-emerald"><i class="fa-solid fa-gauge-high"></i></div>
+                        <div class="metric-info">
+                            <span class="metric-label">Avg Response Latency</span>
+                            <h3 id="stat-avg-latency">0 ms</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> TensorFlow Category Distribution</h3>
+                        </div>
+                        <div class="category-chart-container" id="category-distribution-box">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-fire"></i> Top-Referenced Research Documents</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>File Name</th>
+                                        <th>Category</th>
+                                        <th>Chunks</th>
+                                        <th>Pages</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-docs-table-body">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: ML CLASSIFIER SANDBOX -->
+            <section id="ml-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-robot"></i> TensorFlow Document Domain Classifier Sandbox</h3>
+                        <span class="badge badge-success">TF Keras Neural Network</span>
+                    </div>
+                    <p class="mb-4">Paste any research text passage or paper abstract below to test real-time domain prediction across the trained categories.</p>
+                    
+                    <div class="form-group mb-4">
+                        <label>Sample Abstract / Text Snippet:</label>
+                        <textarea id="ml-input-text" class="form-control" rows="5" placeholder="e.g. We present a novel transformer neural network for reinforcement learning agents in autonomous systems..."></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" id="btn-predict-ml">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Predict Domain Category
+                    </button>
+
+                    <div id="ml-prediction-results" class="mt-4 hidden">
+                        <div class="prediction-header">
+                            <h4>Predicted Category: <span id="pred-category-name" class="text-gradient">--</span></h4>
+                            <span class="confidence-badge" id="pred-confidence">Confidence: 0%</span>
+                        </div>
+
+                        <h5 class="mt-4 mb-2">Category Probability Distribution:</h5>
+                        <div class="prob-bars-container" id="prob-bars-container">
+                            <!-- Bars injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Citation Context Modal -->
+    <div class="modal-overlay hidden" id="context-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-quote-left"></i> Retrieved Grounded Context Chunks</h3>
+                <button class="modal-close" onclick="closeContextModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-context-body">
+                <!-- Context chunks injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
